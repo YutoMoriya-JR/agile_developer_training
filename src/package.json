@@ -4,11 +4,13 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test:bingo": "node --test tests/JavaScript/bingo-game.test.js"
     },
     "devDependencies": {
         "@fontsource/noto-sans-jp": "^5.3.1",
         "@tailwindcss/vite": "^4.0.0",
+        "@vitejs/plugin-react": "^5.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
@@ -16,6 +18,9 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "lucide": "^1.55.0"
+        "gsap": "^3.13.0",
+        "lucide": "^1.55.0",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0"
     }
 }
