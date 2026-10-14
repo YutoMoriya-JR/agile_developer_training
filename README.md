@@ -1,10 +1,35 @@
-# Laravel TDD CICD
+# 日報管理システム
 
 ![Run Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/workflows/Run%20Tests/badge.svg)
 
 ## 概要
-TDDで開発したTodoアプリです。
-CI/CDでテストを自動化しています。
+メンバーの作業状況や困りごとを共有する、Laravel + MySQL の日報管理システムです。
+
+## 実装済みの機能
+
+- 利用者登録、メールアドレス・パスワードによるログイン、ログアウト。
+- 登録時に所属チームを指定。同名チームがあれば所属し、なければ作成。
+- 日報は1人1日1件。対象日と作業内容・進捗は提出時必須、困りごと・相談事項と次の予定は任意。
+- 下書きは本人だけが閲覧・編集・削除可能。作業内容が空でも下書き保存可能。
+- 提出済みの日報はログイン済みの全員がチームをまたいで閲覧・コメント可能。
+- 提出後も本人が編集可能。更新日時を表示し、削除や下書きへの差し戻しは不可。
+- 過去の日付での作成・提出に対応。承認・差し戻しのフローはなし。
+- 対象日の降順で表示し、日付・投稿者・チーム・キーワード・困りごとの有無で検索。
+- 自分の日報・下書きへの切り替え、15件ごとのページ送り、日本語表示、スマートフォン対応。
+- 日時表示の既定値は日本時間（`Asia/Tokyo`）。
+
+## 初回利用
+
+セットアップ後、http://localhost:8086/register から利用者を登録してください。
+既定のパスワードや共通の管理者アカウントはありません。パスワードは12文字以上です。
+
+### 初期版の範囲と運用前の確認
+
+- 現在は自己登録方式です。URLにアクセスできる人が登録できるため、社外公開の前に招待制・社内ネットワーク制限などを決めてください。
+- 役職別の管理操作、利用者の無効化・所属変更、パスワード再設定、メール認証は未実装です。
+- 未提出者の確認、通知、承認、編集履歴、コメントの編集・削除は初期版に含みません。
+- フィルタのチームは投稿者の現在の所属チームです。過去時点の所属は保存しません。
+- 本番ではHTTPS、`APP_DEBUG=false`、適切なCookie設定、DBバックアップを設定してください。
 
 # Laravel Docker Environment
 
@@ -47,9 +72,29 @@ docker compose exec app bash
 composer install
 cp .env.example .env
 php artisan key:generate
+
+# .env の DB_CONNECTION を mysql に設定してから実行
+# DB_HOST / DB_PORT / DB_DATABASE / DB_USERNAME / DB_PASSWORD は
+# docker-compose.yml から渡される環境変数を使用
 php artisan migrate
+npm install
+npm run build
 
 exit
+```
+
+すでにセットアップ済みの場合は、既存の `.env` を上書きせず次を実行します。
+
+```bash
+docker compose exec app php artisan migrate
+docker compose exec app npm install
+docker compose exec app npm run build
+```
+
+MySQL接続の確認:
+
+```bash
+docker compose exec app php artisan migrate:status
 ```
 
 ### 4. アクセス
@@ -62,6 +107,10 @@ exit
 ```bash
 docker compose exec app php artisan test
 ```
+
+テストでは `phpunit.xml` がSQLiteのメモリDBを強制指定します。
+DockerのMySQL接続環境変数が設定されていても、通常のDBを消去しません。
+設定をキャッシュしている場合は、先に `php artisan config:clear` を実行してください。
 
 ## よく使うコマンド
 
@@ -115,7 +164,7 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## 注意事項
 
-- `src/` ディレクトリは空の状態です
+- `src/` にアプリケーションが含まれています
 - 本番環境では CloudFront と ACM を使用することを推奨
 - データベースの永続化は `db-store` ボリュームで行われます
 
